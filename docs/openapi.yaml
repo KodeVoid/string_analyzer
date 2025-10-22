@@ -1,0 +1,295 @@
+openapi: 3.1.0
+info:
+  title: String Analyzer
+  version: "0.0.1"
+  description: |
+    REST API that analyzes strings, computes properties, and stores them keyed by SHA-256.
+servers:
+  - url: https://api.example.com
+    description: Example server (replace with your deployment URL)
+
+paths:
+  /strings:
+    post:
+      summary: Create / Analyze a string
+      description: >
+        Analyze the provided string and store its computed properties.
+        If the string (exact value) already exists (same sha256_hash), returns 409 Conflict.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StringCreateRequest'
+            examples:
+              simple:
+                value:
+                  value: "A man, a plan, a canal: Panama"
+      responses:
+        "201":
+          description: Created — string analyzed and stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringResource'
+        "400":
+          description: Bad Request — invalid JSON or missing required field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: Unprocessable Entity — `value` not a string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "409":
+          description: Conflict — string already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /strings/{string_value}:
+    get:
+      summary: Get a specific string analysis
+      description: Retrieve stored analysis for the exact string (URL-encoded in path).
+      parameters:
+        - $ref: '#/components/parameters/string_value'
+      responses:
+        "200":
+          description: Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringResource'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a stored string
+      parameters:
+        - $ref: '#/components/parameters/string_value'
+      responses:
+        "204":
+          description: No Content — deleted successfully
+          content: {}
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /strings/list:
+    get:
+      summary: Get all strings with filtering
+      description: >
+        Returns stored strings. Supports filtering by palindrome, length range, 
+        exact word_count, and contains_character (single character).
+      parameters:
+        - $ref: '#/components/parameters/is_palindrome'
+        - $ref: '#/components/parameters/min_length'
+        - $ref: '#/components/parameters/max_length'
+        - $ref: '#/components/parameters/word_count'
+        - $ref: '#/components/parameters/contains_character'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StringResource'
+                  count:
+                    type: integer
+                    description: Total matching items (before pagination)
+                  filters_applied:
+                    type: object
+                required: [data, count, filters_applied]
+        "400":
+          description: Bad Request — invalid query params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /strings/filter-by-natural-language:
+    get:
+      summary: Natural-language filtering -> parsed filters + results
+      description: >
+        Accepts a natural language query and returns the interpreted filters and matching results.
+        The server should attempt simple heuristics (palindrome, word count, length comparisons, contains character).
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK — parsed and applied filters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StringResource'
+                  count:
+                    type: integer
+                  interpreted_query:
+                    type: object
+                    properties:
+                      original:
+                        type: string
+                      parsed_filters:
+                        type: object
+                required: [data, count, interpreted_query]
+        "400":
+          description: Bad Request — unable to parse query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: Unprocessable Entity — query parsed but conflicting filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error']
+
+components:
+  parameters:
+    string_value:
+      name: string_value
+      in: path
+      required: true
+      description: The exact string value (URL-encoded) to query or delete.
+      schema:
+        type: string
+    is_palindrome:
+      name: is_palindrome
+      in: query
+      schema:
+        type: boolean
+      description: Filter by palindrome boolean
+    min_length:
+      name: min_length
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Minimum string length (inclusive)
+    max_length:
+      name: max_length
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Maximum string length (inclusive)
+    word_count:
+      name: word_count
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Exact word count filter
+    contains_character:
+      name: contains_character
+      in: query
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 1
+      description: Single character that must appear in the string
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  schemas:
+    StringCreateRequest:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: "The string to analyze"
+
+    Properties:
+      type: object
+      properties:
+        length:
+          type: integer
+        is_palindrome:
+          type: boolean
+        unique_characters:
+          type: integer
+        word_count:
+          type: integer
+        sha256_hash:
+          type: string
+          description: sha256 hex digest of the original value
+        character_frequency_map:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+        - length
+        - is_palindrome
+        - unique_characters
+        - word_count
+        - sha256_hash
+        - character_frequency_map
+
+    StringResource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: same as properties.sha256_hash
+        value:
+          type: string
+        properties:
+          $ref: '#/components/schemas/Properties'
+        created_at:
+          type: string
+          format: date-time
+      required: [id, value, properties, created_at]
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+
+tags: []
