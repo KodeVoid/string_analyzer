@@ -336,11 +336,11 @@ func TestListStrings(t *testing.T) {
 
 	// Seed data
 	seedStore(store,
-		"racecar",                         // P:true, W:1, L:7
-		"hello world",                     // P:false, W:2, L:11, C:'o'
-		"test",                            // P:false, W:1, L:4
-		"A man, a plan, a canal: Panama",  // P:true, W:7, L:30, C:'a'
-		"madam",                           // P:true, W:1, L:5, C:'a'
+		"racecar",                        // P:true, W:1, L:7
+		"hello world",                    // P:false, W:2, L:11, C:'o'
+		"test",                           // P:false, W:1, L:4
+		"A man, a plan, a canal: Panama", // P:true, W:7, L:30, C:'a'
+		"madam",                          // P:true, W:1, L:5, C:'a'
 	)
 
 	// Helper to decode list response
@@ -434,12 +434,12 @@ func TestFilterByNaturalLanguage(t *testing.T) {
 
 	// Seed data
 	seedStore(store,
-		"racecar",                         // P:true, W:1, L:7
-		"hello world",                     // P:false, W:2, L:11, C:'o'
-		"test",                            // P:false, W:1, L:4
-		"A man, a plan, a canal: Panama",  // P:true, W:7, L:30, C:'a'
-		"madam",                           // P:true, W:1, L:5, C:'a'
-		"strings containing z",            // P:false, W:3, L:20, C:'z'
+		"racecar",                        // P:true, W:1, L:7
+		"hello world",                    // P:false, W:2, L:11, C:'o'
+		"test",                           // P:false, W:1, L:4
+		"A man, a plan, a canal: Panama", // P:true, W:7, L:30, C:'a'
+		"madam",                          // P:true, W:1, L:5, C:'a'
+		"strings containing z",           // P:false, W:3, L:20, C:'z'
 	)
 
 	// Helper to decode NL response

@@ -4,7 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
+	// "fmt" // <-- Replaced with slog
+	"log/slog" // <-- ADDED: Proper structured logging
 	"net/http"
 	"net/url"
 	"strconv"
@@ -124,11 +125,29 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
-		fmt.Println("Errro: ", err)
+		// Use structured logging instead of fmt.Println
+		slog.Error("failed to write JSON response", "error", err)
 	}
 }
 
 func writeError(w http.ResponseWriter, status int, errorType, message string) {
+	// --- ADDED LOGGING ---
+	// Log client-side (4xx) errors as Info, server-side (5xx) as Error
+	if status >= 500 {
+		slog.Error("sending server error response",
+			"status", status,
+			"error_type", errorType,
+			"message", message,
+		)
+	} else {
+		slog.Info("sending client error response",
+			"status", status,
+			"error_type", errorType,
+			"message", message,
+		)
+	}
+	// --- END ADDED ---
+
 	writeJSON(w, status, ErrorResponse{
 		Status:  status,
 		Error:   errorType,
@@ -173,6 +192,10 @@ func (h *Handler) CreateString(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// --- ADDED LOGGING ---
+	slog.Info("string created", "id", resource.ID, "value", resource.Value)
+	// --- END ADDED ---
+
 	writeJSON(w, http.StatusCreated, resource)
 }
 
@@ -183,20 +206,21 @@ func (h *Handler) GetString(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract string_value from URL path
-	// Assuming path format: /strings/{string_value}
 	path := strings.TrimPrefix(r.URL.Path, "/strings/")
 	if path == "" || path == r.URL.Path {
 		writeError(w, http.StatusBadRequest, "Bad Request", "Missing string value in path")
 		return
 	}
 
-	// URL decode the value
 	stringValue, err := url.PathUnescape(path)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "Bad Request", "Invalid URL encoding")
 		return
 	}
+
+	// --- ADDED LOGGING ---
+	slog.Info("getting string", "value", stringValue)
+	// --- END ADDED ---
 
 	resource, err := h.store.Get(stringValue)
 	if err != nil {
@@ -231,6 +255,10 @@ func (h *Handler) DeleteString(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "Not Found", "String not found")
 		return
 	}
+
+	// --- ADDED LOGGING ---
+	slog.Info("string deleted", "value", stringValue)
+	// --- END ADDED ---
 
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -316,6 +344,15 @@ func (h *Handler) ListStrings(w http.ResponseWriter, r *http.Request) {
 		offset = o
 	}
 
+	// --- ADDED LOGGING ---
+	// Log the filters, but only if there are any
+	if len(filters) > 0 {
+		slog.Info("listing strings with filters", "filters", filters, "limit", limit, "offset", offset)
+	} else {
+		slog.Info("listing all strings", "limit", limit, "offset", offset)
+	}
+	// --- END ADDED ---
+
 	data, count, err := h.store.List(filters, limit, offset)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
@@ -350,6 +387,10 @@ func (h *Handler) FilterByNaturalLanguage(w http.ResponseWriter, r *http.Request
 		writeError(w, http.StatusBadRequest, "Bad Request", "Unable to parse query: "+err.Error())
 		return
 	}
+
+	// --- ADDED LOGGING ---
+	slog.Info("parsed natural language query", "original_query", query, "parsed_filters", filters)
+	// --- END ADDED ---
 
 	// Use default pagination
 	limit := 25
@@ -416,7 +457,7 @@ func parseNaturalLanguageQuery(query string) (map[string]any, error) {
 	// Check for "contains X" or "containing X" pattern
 	containsIndex := strings.Index(lower, "containing")
 	searchWord := "containing"
-	
+
 	if containsIndex == -1 {
 		containsIndex = strings.Index(lower, "contains")
 		searchWord = "contains"
