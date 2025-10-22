@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# This script runs a full test suite against the String Analyzer API
+# and appends all results to a file named 'output.txt'.
+
+# --- START: Clear the log file for a new run ---
+echo "Starting API test run at $(date)" > output.txt
+echo "========================================" >> output.txt
+
+# --- 1. CREATE STRINGS (POST /strings) ---
+echo -e "\n--- 1. CREATE STRINGS ---\n" >> output.txt
+
+echo -e "\n[POST] Creating 'racecar'..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"value": "racecar"}' >> output.txt
+
+echo -e "\n[POST] Creating 'A man, a plan, a canal: Panama'..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"value": "A man, a plan, a canal: Panama"}' >> output.txt
+
+echo -e "\n[POST] Creating 'hello world'..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"value": "hello world"}' >> output.txt
+
+echo -e "\n[POST] Creating 'strings containing z'..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"value": "strings containing z"}' >> output.txt
+
+echo -e "\n[POST] Testing 409 Conflict (duplicate 'racecar')..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"value": "racecar"}' >> output.txt
+
+echo -e "\n[POST] Testing 400 Bad Request (missing 'value')..." >> output.txt
+curl -sS -X POST http://localhost:8000/strings \
+-H "Content-Type: application/json" \
+-d '{"name": "test"}' >> output.txt
+
+# --- 2. GET A SPECIFIC STRING (GET /strings/{string_value}) ---
+echo -e "\n\n--- 2. GET SPECIFIC STRING ---\n" >> output.txt
+
+echo -e "\n[GET] Getting 'hello world'..." >> output.txt
+curl -sS http://localhost:8000/strings/hello%20world >> output.txt
+
+echo -e "\n[GET] Getting 'A man, a plan, a canal: Panama'..." >> output.txt
+curl -sS http://localhost:8000/strings/A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama >> output.txt
+
+echo -e "\n[GET] Testing 404 Not Found..." >> output.txt
+curl -sS http://localhost:8000/strings/i-do-not-exist >> output.txt
+
+# --- 3. GET ALL STRINGS WITH FILTERING (GET /strings/list) ---
+echo -e "\n\n--- 3. LIST & FILTER STRINGS ---\n" >> output.txt
+
+echo -e "\n[GET] List all (no filter)..." >> output.txt
+curl -sS http://localhost:8000/strings/list >> output.txt
+
+echo -e "\n[GET] List palindromes (is_palindrome=true)..." >> output.txt
+curl -sS http://localhost:8000/strings/list?is_palindrome=true >> output.txt
+
+echo -e "\n[GET] List 2-word strings (word_count=2)..." >> output.txt
+curl -sS http://localhost:8000/strings/list?word_count=2 >> output.txt
+
+echo -e "\n[GET] List strings containing 'z'..." >> output.txt
+curl -sS http://localhost:8000/strings/list?contains_character=z >> output.txt
+
+echo -e "\n[GET] List 1-word palindromes..." >> output.txt
+curl -sS "http://localhost:8000/strings/list?is_palindrome=true&word_count=1" >> output.txt
+
+# --- 4. NATURAL LANGUAGE FILTERING (GET /strings/filter-by-natural-language) ---
+echo -e "\n\n--- 4. NATURAL LANGUAGE FILTERING ---\n" >> output.txt
+
+echo -e "\n[GET] NL Query: 'all single word palindromic strings'..." >> output.txt
+curl -sS "http://localhost:8000/strings/filter-by-natural-language?query=all%20single%20word%20palindromic%20strings" >> output.txt
+
+echo -e "\n[GET] NL Query: 'strings longer than 10 characters'..." >> output.txt
+curl -sS "http://localhost:8000/strings/filter-by-natural-language?query=strings%20longer%20than%2010%20characters" >> output.txt
+
+echo -e "\n[GET] NL Query: 'strings containing the letter z'..." >> output.txt
+curl -sS "http://localhost:8000/strings/filter-by-natural-language?query=strings%20containing%20the%20letter%20z" >> output.txt
+
+# --- 5. DELETE A STRING (DELETE /strings/{string_value}) ---
+echo -e "\n\n--- 5. DELETE STRING ---\n" >> output.txt
+
+echo -e "\n[DELETE] Deleting 'hello world' (expect 204)..." >> output.txt
+# This command prints *only* the HTTP status code
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:8000/strings/hello%20world >> output.txt
+
+echo -e "\n[DELETE] Testing 404 (deleting 'hello world' again, expect 404)..." >> output.txt
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:8000/strings/hello%20world >> output.txt
+
+echo -e "\n[GET] Verifying 'hello world' is gone (expect 404)..." >> output.txt
+curl -sS http://localhost:8000/strings/hello%20world >> output.txt
+
+# --- END OF TEST ---
+echo -e "\n\n========================================" >> output.txt
+echo "Test run complete. Results saved to output.txt" >> output.txt
+
+# Also print the final "complete" message to the terminal
+echo "Test run complete. Results saved to output.txt"

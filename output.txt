@@ -1,0 +1,83 @@
+Starting API test run at Wed 22 Oct 2025 16:39:06 WAT
+========================================
+
+--- 1. CREATE STRINGS ---
+
+
+[POST] Creating 'racecar'...
+{"id":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","value":"racecar","properties":{"length":7,"is_palindrome":true,"unique_characters":4,"word_count":1,"sha256_hash":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","character_frequency_map":{"a":2,"c":2,"e":1,"r":2}},"created_at":"2025-10-22T15:39:06.134604607Z"}
+
+[POST] Creating 'A man, a plan, a canal: Panama'...
+{"id":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","value":"A man, a plan, a canal: Panama","properties":{"length":30,"is_palindrome":true,"unique_characters":11,"word_count":7,"sha256_hash":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","character_frequency_map":{" ":6,",":2,":":1,"A":1,"P":1,"a":9,"c":1,"l":2,"m":2,"n":4,"p":1}},"created_at":"2025-10-22T15:39:06.246785919Z"}
+
+[POST] Creating 'hello world'...
+{"id":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","value":"hello world","properties":{"length":11,"is_palindrome":false,"unique_characters":8,"word_count":2,"sha256_hash":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","character_frequency_map":{" ":1,"d":1,"e":1,"h":1,"l":3,"o":2,"r":1,"w":1}},"created_at":"2025-10-22T15:39:06.34731715Z"}
+
+[POST] Creating 'strings containing z'...
+{"id":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","value":"strings containing z","properties":{"length":20,"is_palindrome":false,"unique_characters":11,"word_count":3,"sha256_hash":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","character_frequency_map":{" ":2,"a":1,"c":1,"g":2,"i":3,"n":4,"o":1,"r":1,"s":2,"t":2,"z":1}},"created_at":"2025-10-22T15:39:06.44864172Z"}
+
+[POST] Testing 409 Conflict (duplicate 'racecar')...
+{"status":409,"error":"Conflict","message":"String already exists"}
+
+[POST] Testing 400 Bad Request (missing 'value')...
+{"status":400,"error":"Bad Request","message":"Missing required field: value"}
+
+
+--- 2. GET SPECIFIC STRING ---
+
+
+[GET] Getting 'hello world'...
+{"id":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","value":"hello world","properties":{"length":11,"is_palindrome":false,"unique_characters":8,"word_count":2,"sha256_hash":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","character_frequency_map":{" ":1,"d":1,"e":1,"h":1,"l":3,"o":2,"r":1,"w":1}},"created_at":"2025-10-22T15:39:06Z"}
+
+[GET] Getting 'A man, a plan, a canal: Panama'...
+{"id":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","value":"A man, a plan, a canal: Panama","properties":{"length":30,"is_palindrome":true,"unique_characters":11,"word_count":7,"sha256_hash":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","character_frequency_map":{" ":6,",":2,":":1,"A":1,"P":1,"a":9,"c":1,"l":2,"m":2,"n":4,"p":1}},"created_at":"2025-10-22T15:39:06Z"}
+
+[GET] Testing 404 Not Found...
+{"status":404,"error":"Not Found","message":"String not found"}
+
+
+--- 3. LIST & FILTER STRINGS ---
+
+
+[GET] List all (no filter)...
+{"data":[{"id":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","value":"racecar","properties":{"length":7,"is_palindrome":true,"unique_characters":4,"word_count":1,"sha256_hash":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","character_frequency_map":{"a":2,"c":2,"e":1,"r":2}},"created_at":"2025-10-22T15:39:06Z"},{"id":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","value":"A man, a plan, a canal: Panama","properties":{"length":30,"is_palindrome":true,"unique_characters":11,"word_count":7,"sha256_hash":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","character_frequency_map":{" ":6,",":2,":":1,"A":1,"P":1,"a":9,"c":1,"l":2,"m":2,"n":4,"p":1}},"created_at":"2025-10-22T15:39:06Z"},{"id":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","value":"hello world","properties":{"length":11,"is_palindrome":false,"unique_characters":8,"word_count":2,"sha256_hash":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","character_frequency_map":{" ":1,"d":1,"e":1,"h":1,"l":3,"o":2,"r":1,"w":1}},"created_at":"2025-10-22T15:39:06Z"},{"id":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","value":"strings containing z","properties":{"length":20,"is_palindrome":false,"unique_characters":11,"word_count":3,"sha256_hash":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","character_frequency_map":{" ":2,"a":1,"c":1,"g":2,"i":3,"n":4,"o":1,"r":1,"s":2,"t":2,"z":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":4,"filters_applied":{}}
+
+[GET] List palindromes (is_palindrome=true)...
+{"data":[{"id":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","value":"racecar","properties":{"length":7,"is_palindrome":true,"unique_characters":4,"word_count":1,"sha256_hash":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","character_frequency_map":{"a":2,"c":2,"e":1,"r":2}},"created_at":"2025-10-22T15:39:06Z"},{"id":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","value":"A man, a plan, a canal: Panama","properties":{"length":30,"is_palindrome":true,"unique_characters":11,"word_count":7,"sha256_hash":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","character_frequency_map":{" ":6,",":2,":":1,"A":1,"P":1,"a":9,"c":1,"l":2,"m":2,"n":4,"p":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":2,"filters_applied":{"is_palindrome":true}}
+
+[GET] List 2-word strings (word_count=2)...
+{"data":[{"id":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","value":"hello world","properties":{"length":11,"is_palindrome":false,"unique_characters":8,"word_count":2,"sha256_hash":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","character_frequency_map":{" ":1,"d":1,"e":1,"h":1,"l":3,"o":2,"r":1,"w":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":1,"filters_applied":{"word_count":2}}
+
+[GET] List strings containing 'z'...
+{"data":[{"id":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","value":"strings containing z","properties":{"length":20,"is_palindrome":false,"unique_characters":11,"word_count":3,"sha256_hash":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","character_frequency_map":{" ":2,"a":1,"c":1,"g":2,"i":3,"n":4,"o":1,"r":1,"s":2,"t":2,"z":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":1,"filters_applied":{"contains_character":"z"}}
+
+[GET] List 1-word palindromes...
+{"data":[{"id":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","value":"racecar","properties":{"length":7,"is_palindrome":true,"unique_characters":4,"word_count":1,"sha256_hash":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","character_frequency_map":{"a":2,"c":2,"e":1,"r":2}},"created_at":"2025-10-22T15:39:06Z"}],"count":1,"filters_applied":{"is_palindrome":true,"word_count":1}}
+
+
+--- 4. NATURAL LANGUAGE FILTERING ---
+
+
+[GET] NL Query: 'all single word palindromic strings'...
+{"data":[{"id":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","value":"racecar","properties":{"length":7,"is_palindrome":true,"unique_characters":4,"word_count":1,"sha256_hash":"e00f9ef51a95f6e854862eed28dc0f1a68f154d9f75ddd841ab00de6ede9209b","character_frequency_map":{"a":2,"c":2,"e":1,"r":2}},"created_at":"2025-10-22T15:39:06Z"}],"count":1,"interpreted_query":{"original":"all single word palindromic strings","parsed_filters":{"is_palindrome":true,"word_count":1}}}
+
+[GET] NL Query: 'strings longer than 10 characters'...
+{"data":[{"id":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","value":"A man, a plan, a canal: Panama","properties":{"length":30,"is_palindrome":true,"unique_characters":11,"word_count":7,"sha256_hash":"2ef97ee3e8b9cfcc95732501ac4f9169101fecf46be69efeac789378b26272d1","character_frequency_map":{" ":6,",":2,":":1,"A":1,"P":1,"a":9,"c":1,"l":2,"m":2,"n":4,"p":1}},"created_at":"2025-10-22T15:39:06Z"},{"id":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","value":"hello world","properties":{"length":11,"is_palindrome":false,"unique_characters":8,"word_count":2,"sha256_hash":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","character_frequency_map":{" ":1,"d":1,"e":1,"h":1,"l":3,"o":2,"r":1,"w":1}},"created_at":"2025-10-22T15:39:06Z"},{"id":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","value":"strings containing z","properties":{"length":20,"is_palindrome":false,"unique_characters":11,"word_count":3,"sha256_hash":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","character_frequency_map":{" ":2,"a":1,"c":1,"g":2,"i":3,"n":4,"o":1,"r":1,"s":2,"t":2,"z":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":3,"interpreted_query":{"original":"strings longer than 10 characters","parsed_filters":{"min_length":11}}}
+
+[GET] NL Query: 'strings containing the letter z'...
+{"data":[{"id":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","value":"strings containing z","properties":{"length":20,"is_palindrome":false,"unique_characters":11,"word_count":3,"sha256_hash":"e37703a5afd0d3b27253c455e989d746da0bf40f8ef62ced6d2f984ae31f85b2","character_frequency_map":{" ":2,"a":1,"c":1,"g":2,"i":3,"n":4,"o":1,"r":1,"s":2,"t":2,"z":1}},"created_at":"2025-10-22T15:39:06Z"}],"count":1,"interpreted_query":{"original":"strings containing the letter z","parsed_filters":{"contains_character":"z"}}}
+
+
+--- 5. DELETE STRING ---
+
+
+[DELETE] Deleting 'hello world' (expect 204)...
+204
+[DELETE] Testing 404 (deleting 'hello world' again, expect 404)...
+404
+[GET] Verifying 'hello world' is gone (expect 404)...
+{"status":404,"error":"Not Found","message":"String not found"}
+
+
+========================================
+Test run complete. Results saved to output.txt
