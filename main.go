@@ -142,7 +142,7 @@ func main() {
 	router := handlers.SetupRoutes(store)
 
 	// 3. Start the HTTP server
-	port := ":8080"
+	port := ":8000"
 	log.Printf("Starting String Analyzer server on %s...", port)
 
 	// http.ListenAndServe starts the server
